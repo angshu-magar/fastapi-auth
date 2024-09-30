@@ -40,13 +40,11 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, settings.secret_key, algorithm=settings.algorithm)
-        print(token)
+        payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
         user_id = payload.get("user_id")
         if user_id is None:
             raise credentials_exception
     except InvalidTokenError:
-        print("Hello")
         raise credentials_exception
 
     user : UserModel = db.query(UserModel).filter(UserModel.id == user_id).first()
