@@ -8,5 +8,6 @@ class Settings():
         self.secret_key = env_vars.get('SECRET_KEY')
         self.algorithm = env_vars.get('ALGORITHM')
         self.access_token_expire_minutes = int(env_vars.get('ACCESS_TOKEN_EXPIRE_MINUTES'), 0)
+        self.salt = env_vars.get('PASSWORD_SALT')
 
 settings = Settings()
