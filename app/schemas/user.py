@@ -1,5 +1,9 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 
-class BasicUser(BaseModel):
-    email : EmailStr = Field(max_length=150)
+class UserCreate(BaseModel):
+    username : str
     password : str = Field(min_length=8, max_length=150)
+    role : str
+
+    name : str
+    age : int

@@ -2,23 +2,24 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from app.api.v1.dependencies.db_dependencies import DatabaseDep
-from app.models.user import UserModel
-from app.core.security import hash_password, create_access_token, oauth2_scheme
+from app.models.users import UserModel
+from app.core.security import create_access_token, verify_password
 
-router = APIRouter(tags=['Authentication'])
+router = APIRouter(tags=['Authentication'], prefix="/api")
 
 @router.post("/token")
 async def login_for_access_token(
     form_data : Annotated[OAuth2PasswordRequestForm, Depends()],
     db : DatabaseDep
 ):
-    input_hashed_password = hash_password(form_data.password)
-    user: UserModel = db.query(UserModel).filter(
-        UserModel.email == form_data.username,
-        UserModel.password == input_hashed_password
-    ).first()
+    user: UserModel = db.query(UserModel).filter(UserModel.username == form_data.username).first()
+
     if not user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Credentials")
-    token = create_access_token({"user_id" : user.id})
+
+    if not verify_password(form_data.password, user.password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Credentials")
+
+    token = create_access_token({"user_id" : user.id, "role" : user.role})
 
     return {"access_token" : token, "token_type" : "bearer"}
