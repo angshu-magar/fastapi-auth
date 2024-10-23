@@ -8,3 +8,4 @@ dump
 dump/
 .DS_Store
 .env
+.python-version
