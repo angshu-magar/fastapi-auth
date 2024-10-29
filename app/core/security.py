@@ -3,7 +3,7 @@ from fastapi import HTTPException, status, Depends
 import jwt
 from passlib.context import CryptContext
 from jwt.exceptions import InvalidTokenError
-from app.models.users import UserModel
+from app.models.userModel import UserModel
 from app.core.config import settings
 from datetime import datetime, timedelta, timezone
 from fastapi.security import OAuth2PasswordBearer
@@ -33,12 +33,11 @@ def decode_token(_kmstoken : Annotated[str, Depends(oauth2_scheme)]):
     try:
         payload = jwt.decode(_kmstoken, settings.secret_key, algorithms=[settings.algorithm])
         user_id = payload.get("user_id")
-        role = payload.get("role")
-        if user_id is None or role is None:
+        if user_id is None:
             raise credentials_exception
     except InvalidTokenError:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="decode token")
-    return {"user_id" : user_id, "role" : role}
+    return {"user_id" : user_id}
 
 
 async def get_current_user(
@@ -50,14 +49,3 @@ async def get_current_user(
         raise credentials_exception
 
     return user
-
-# class RoleChecker:
-    # def __init__(self, *roles : str):
-        # self.allowed_roles = []
-        # self.allowed_roles.extend(roles)
-
-    # def __call__(self,tokenInfo : Annotated[dict, Depends(decode_token)]):
-        # if tokenInfo.get("role") in self.allowed_roles:
-            # return tokenInfo
-
-        # raise HTTPException(status_code=status.HTTP_307_TEMPORARY_REDIRECT, detail="Redirecting to login", headers={"Location": "/login"})

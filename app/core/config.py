@@ -10,3 +10,5 @@ class Settings():
         self.access_token_expire_minutes = int(env_vars.get('ACCESS_TOKEN_EXPIRE_MINUTES') or 0)
 
 settings = Settings()
+
+EXCLUDED_PATHS = ['docs', 'openapi.json', 'api/token']
